@@ -18,3 +18,7 @@ SOURCES += main.cpp\
 HEADERS  += calculatorwindow.h
 
 FORMS    += calculatorwindow.ui
+
+RESOURCES +=
+
+DISTFILES +=

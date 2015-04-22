@@ -1,2 +1,0 @@
-# Calculator
-UIEvolution subject. Calculator.

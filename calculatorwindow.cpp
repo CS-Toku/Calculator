@@ -40,7 +40,13 @@ CalculatorWindow::~CalculatorWindow()
 }
 
 void CalculatorWindow::addNumber(QString num){
+
     QString value = ui->valueDisplay->text();
+    if (this->symbolAdded){
+        ui->valueDisplay->setText("0");
+        this->symbolAdded = false;
+    }
+
     if (value.remove(".").length() >= 20) return;
     value = ui->valueDisplay->text();
     if (value == "0")
@@ -48,35 +54,100 @@ void CalculatorWindow::addNumber(QString num){
     else
         ui->valueDisplay->setText(value+num);
     this->resizeFont();
+    this->symbolAdded = false;
+    this->numberAdded = true;
 }
 
 void CalculatorWindow::addDecimalPoint(void){
     QString value = ui->valueDisplay->text();
-    if (value.indexOf(".") < 0)
-        ui->valueDisplay->setText(value+".");
+    switch(this->lastchar){
+    case Symbol:
+    case LeftBracket:
+    case RightBracket:
+        ui->valueDisplay->setText("0.");
+        break;
+    case Number:
+        if (value.indexOf(".") < 0){
+            ui->valueDisplay->setText(value+".");
+        }
+        break;
+    case Point:
+    default: break;
+    }
 }
 
 void CalculatorWindow::addLeftBracket(void){
-    ui->valueDisplay->setText(ui->valueDisplay->text()+"(");
+    QString formula = ui->formulaDisplay->text();
+    QString value = ui->valueDisplay->text();
+    switch(this->lastchar){
+    case LeftBracket:
+    case RightBracket:
+    case Symbol:
+        ui->formulaDisplay->setText(formula+"(");
+        break;
+    case Point:
+        value.remove(".");
+    case Number:
+        ui->formulaDisplay->setText(formula+value+"(");
+        break;
+    }
+    ui->valueDisplay->setText("0");
+    this->bracketCount++;
+    this->lastchar = LeftBracket;
 }
 void CalculatorWindow::addRightBracket(void){
-    ui->valueDisplay->setText(ui->valueDisplay->text()+")");
+    if (this->bracketCount > 0){
+        switch(this->lastchar){
+        case Number:
+            ui->valueDisplay->setText(ui->formulaDisplay->text()+ui->valueDisplay->text()+")");
+            break;
+        case RightBracket:
+            ui->formulaDisplay->setText(ui->formulaDisplay->text()+")");
+            break;
+        case Point:
+            ui->formulaDisplay->setText(ui->formulaDisplay->text()+ui->valueDisplay->text().remove(".")+")");
+            break;
+        default: break;
+        }
+        this->lastchar = RightBracket;
+        ui->valueDisplay->setText("0");
+        this->bracketCount--;
+    }
 }
 
 void CalculatorWindow::ClearData(void){
     ui->valueDisplay->setText("0");
 }
 
-void CalculatorWindow::addAddSymbol(void){ this->addSymbol("＋"); }
+void CalculatorWindow::addSymbol(QString symbol){
+    QString value = ui->valueDisplay->text();
+    QString formula = ui->formulaDisplay->text();
+    int len = formula.length();
+    switch(this->lastchar){
+    case LeftBracket:
+        return;
+    case RightBracket:
+        ui->formulaDisplay->setText(formula+symbol);
+        break;
+    case Symbol:
+        formula.replace(len-1, 1, symbol);
+        ui->formulaDisplay->setText(formula);
+        break;
+    case Point:
+        value.remove(".");
+    case Number:
+        ui->formulaDisplay->setText(ui->formulaDisplay->text() + value + symbol);
+        break;
+    default: break;
+    }
+
+    this->lastchar = Symbol;
+}
+
+void CalculatorWindow::addAddSymbol(void){ this->addSymbol("+"); }
 void CalculatorWindow::addSubtractSymbol(void){ this->addSymbol("−"); }
 void CalculatorWindow::addMultiplySymbol(void){ this->addSymbol("×"); }
 void CalculatorWindow::addDivideSymbol(void){ this->addSymbol("÷"); }
-
-void CalculatorWindow::addSymbol(QString symbol){
-    QString value = ui->valueDisplay->text();
-    ui->formulaDisplay->setText(ui->formulaDisplay->text() + value + symbol);
-    ui->valueDisplay->setText("0");
-}
 
 void CalculatorWindow::addNumberZero(void){ this->addNumber("0"); }
 void CalculatorWindow::addNumberOne(void){ this->addNumber("1"); }

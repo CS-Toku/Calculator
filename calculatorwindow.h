@@ -52,9 +52,6 @@ private:
     bool isInitialized;
     enum LastChar{None, Number, Symbol, LeftBracket, RightBracket, Point};
     LastChar lastchar;
-    bool symbolAdded;
-    bool numberAdded;
-    bool bracketAdded;
     int bracketCount;
     double fontAspectRaito;
     QString *formulaStr;

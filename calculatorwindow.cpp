@@ -9,6 +9,8 @@ CalculatorWindow::CalculatorWindow(QWidget *parent) :
     this->isInitialized = false;
     this->fontAspectRaito = 0;
 
+    this->lastchar = None;
+    this->bracketCount = 0;
     ui->setupUi(this);
 
     QObject::connect(ui->EqualButton, SIGNAL(clicked()), this, SLOT(a()));
@@ -40,27 +42,33 @@ CalculatorWindow::~CalculatorWindow()
 }
 
 void CalculatorWindow::addNumber(QString num){
-
     QString value = ui->valueDisplay->text();
-    if (this->symbolAdded){
-        ui->valueDisplay->setText("0");
-        this->symbolAdded = false;
-    }
-
-    if (value.remove(".").length() >= 20) return;
-    value = ui->valueDisplay->text();
-    if (value == "0")
+    switch(this->lastchar){
+    case None:
+    case Symbol:
+    case LeftBracket:
+    case RightBracket:
         ui->valueDisplay->setText(num);
-    else
-        ui->valueDisplay->setText(value+num);
+        break;
+    case Point:
+    case Number:
+        if (value.remove(".").length() < 20){
+            value = ui->valueDisplay->text();
+            if (value == "0")
+                ui->valueDisplay->setText(num);
+            else
+                ui->valueDisplay->setText(value+num);
+        }
+    default: return;
+    }
+    this->lastchar = Number;
     this->resizeFont();
-    this->symbolAdded = false;
-    this->numberAdded = true;
 }
 
 void CalculatorWindow::addDecimalPoint(void){
     QString value = ui->valueDisplay->text();
     switch(this->lastchar){
+    case None:
     case Symbol:
     case LeftBracket:
     case RightBracket:
@@ -72,14 +80,17 @@ void CalculatorWindow::addDecimalPoint(void){
         }
         break;
     case Point:
-    default: break;
+    default: return;
     }
+    this->lastchar = Point;
+    this->resizeFont();
 }
 
 void CalculatorWindow::addLeftBracket(void){
     QString formula = ui->formulaDisplay->text();
     QString value = ui->valueDisplay->text();
     switch(this->lastchar){
+    case None:
     case LeftBracket:
     case RightBracket:
     case Symbol:
@@ -90,33 +101,35 @@ void CalculatorWindow::addLeftBracket(void){
     case Number:
         ui->formulaDisplay->setText(formula+value+"(");
         break;
+    default: return;
     }
     ui->valueDisplay->setText("0");
     this->bracketCount++;
     this->lastchar = LeftBracket;
+    this->resizeFont();
 }
 void CalculatorWindow::addRightBracket(void){
     if (this->bracketCount > 0){
+        QString formula = ui->formulaDisplay->text();
+        QString value = ui->valueDisplay->text();
+
         switch(this->lastchar){
         case Number:
-            ui->valueDisplay->setText(ui->formulaDisplay->text()+ui->valueDisplay->text()+")");
+            ui->formulaDisplay->setText(formula+value+")");
             break;
         case RightBracket:
-            ui->formulaDisplay->setText(ui->formulaDisplay->text()+")");
+            ui->formulaDisplay->setText(formula+")");
             break;
         case Point:
-            ui->formulaDisplay->setText(ui->formulaDisplay->text()+ui->valueDisplay->text().remove(".")+")");
+            ui->formulaDisplay->setText(formula+value.remove(".")+")");
             break;
-        default: break;
+        default: return;
         }
         this->lastchar = RightBracket;
         ui->valueDisplay->setText("0");
         this->bracketCount--;
+        this->resizeFont();
     }
-}
-
-void CalculatorWindow::ClearData(void){
-    ui->valueDisplay->setText("0");
 }
 
 void CalculatorWindow::addSymbol(QString symbol){
@@ -138,10 +151,14 @@ void CalculatorWindow::addSymbol(QString symbol){
     case Number:
         ui->formulaDisplay->setText(ui->formulaDisplay->text() + value + symbol);
         break;
-    default: break;
+    default: return;
     }
-
     this->lastchar = Symbol;
+    this->resizeFont();
+}
+
+void CalculatorWindow::ClearData(void){
+    ui->valueDisplay->setText("0");
 }
 
 void CalculatorWindow::addAddSymbol(void){ this->addSymbol("+"); }
@@ -177,18 +194,14 @@ bool CalculatorWindow::event(QEvent *event){
 
 
 void CalculatorWindow::windowStateChangeEvent(QWindowStateChangeEvent* event){
-    std::cout << "window" << std::endl;
     this->resizeFont();
 }
 
 void CalculatorWindow::resizeEvent(QResizeEvent* event){
-    std::cout << "resize" << std::endl;
     this->resizeFont();
 }
 
-
 void CalculatorWindow::showEvent(QShowEvent *event){
-    std::cout << "show" << std::endl;
     this->resizeFont();
 
     if(this->isInitialized)

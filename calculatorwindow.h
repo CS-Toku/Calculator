@@ -42,15 +42,17 @@ public slots:
     void addRightBracket(void);
     void addLeftBracket(void);
     void ClearData(void);
+    void PercentOperate(void);
     void addAddSymbol(void);
     void addSubtractSymbol(void);
     void addMultiplySymbol(void);
     void addDivideSymbol(void);
+    void ExecuteOperation(void);
 
 private:
     Ui::CalculatorWindow *ui;
     bool isInitialized;
-    enum LastChar{None, Number, Symbol, LeftBracket, RightBracket, Point};
+    enum LastChar{None, Number, Symbol, LeftBracket, RightBracket, Point, Clear, Result};
     LastChar lastchar;
     int bracketCount;
     double fontAspectRaito;

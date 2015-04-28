@@ -28,16 +28,16 @@ CalculatorWindow::CalculatorWindow(QWidget *parent) :
     QObject::connect(ui->RBracketButton, SIGNAL(clicked()), this, SLOT(addRightBracket()));
     QObject::connect(ui->LBracketButton, SIGNAL(clicked()), this, SLOT(addLeftBracket()));
     QObject::connect(ui->ClearButton, SIGNAL(clicked()), this, SLOT(ClearData()));
+    QObject::connect(ui->PercentButton, SIGNAL(clicked()), this, SLOT(PercentOperate()));
     QObject::connect(ui->AddButton, SIGNAL(clicked()), this, SLOT(addAddSymbol()));
     QObject::connect(ui->SubtractButton, SIGNAL(clicked()), this, SLOT(addSubtractSymbol()));
     QObject::connect(ui->MultiplyButton, SIGNAL(clicked()), this, SLOT(addMultiplySymbol()));
     QObject::connect(ui->DivideButton, SIGNAL(clicked()), this, SLOT(addDivideSymbol()));
-
+    QObject::connect(ui->EqualButton, SIGNAL(clicked()), this, SLOT(ExecuteOperation()));
 }
 
 CalculatorWindow::~CalculatorWindow()
 {
-
     delete ui;
 }
 
@@ -59,9 +59,11 @@ void CalculatorWindow::addNumber(QString num){
             else
                 ui->valueDisplay->setText(value+num);
         }
+        break;
     default: return;
     }
     this->lastchar = Number;
+    ui->ClearButton->setText("C");
     this->resizeFont();
 }
 
@@ -83,6 +85,7 @@ void CalculatorWindow::addDecimalPoint(void){
     default: return;
     }
     this->lastchar = Point;
+    ui->ClearButton->setText("C");
     this->resizeFont();
 }
 
@@ -105,9 +108,11 @@ void CalculatorWindow::addLeftBracket(void){
     }
     ui->valueDisplay->setText("0");
     this->bracketCount++;
+    ui->ClearButton->setText("C");
     this->lastchar = LeftBracket;
     this->resizeFont();
 }
+
 void CalculatorWindow::addRightBracket(void){
     if (this->bracketCount > 0){
         QString formula = ui->formulaDisplay->text();
@@ -127,6 +132,7 @@ void CalculatorWindow::addRightBracket(void){
         }
         this->lastchar = RightBracket;
         ui->valueDisplay->setText("0");
+        ui->ClearButton->setText("C");
         this->bracketCount--;
         this->resizeFont();
     }
@@ -149,16 +155,35 @@ void CalculatorWindow::addSymbol(QString symbol){
     case Point:
         value.remove(".");
     case Number:
-        ui->formulaDisplay->setText(ui->formulaDisplay->text() + value + symbol);
+        ui->formulaDisplay->setText(formula + value + symbol);
         break;
     default: return;
     }
     this->lastchar = Symbol;
+    ui->ClearButton->setText("C");
     this->resizeFont();
 }
 
 void CalculatorWindow::ClearData(void){
+    switch(this->lastchar){
+    case None: return;
+    case Clear:
+    case Result:
+        ui->formulaDisplay->setText(" ");
+        this->lastchar = None;
+        break;
+    default:
+        this->lastchar = Clear;
+        break;
+    }
     ui->valueDisplay->setText("0");
+    ui->ClearButton->setText("AC");
+    this->resizeFont();
+}
+
+void CalculatorWindow::PercentOperate(void){
+    QString value = ui->valueDisplay->text();
+    return;
 }
 
 void CalculatorWindow::addAddSymbol(void){ this->addSymbol("+"); }
@@ -177,7 +202,25 @@ void CalculatorWindow::addNumberSeven(void){ this->addNumber("7"); }
 void CalculatorWindow::addNumberEight(void){ this->addNumber("8"); }
 void CalculatorWindow::addNumberNine(void){ this->addNumber("9"); }
 
+void CalculatorWindow::ExecuteOperation(void){
+    QString value = ui->valueDisplay->text();
+    QString formula = ui->formulaDisplay->text();
+    switch(this->lastchar){
+    case Point:
+        value.remove(".");
+    case Number:
+        ui->formulaDisplay->setText(formula+value);
+        break;
+    case RightBracket:
+        break;
+    default:
+        return;
+    }
 
+    this->lastchar = Number;
+    ui->valueDisplay->setText("0");
+    return;
+}
 
 
 bool CalculatorWindow::event(QEvent *event){

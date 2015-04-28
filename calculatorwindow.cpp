@@ -9,9 +9,10 @@ CalculatorWindow::CalculatorWindow(QWidget *parent) :
     this->isInitialized = false;
     this->fontAspectRaito = 0;
 
-    this->lastchar = None;
-    this->lastchar = None;
+    this->lastState = Init;
+    this->pre_lastState = Init;
     this->bracketCount = 0;
+    this->isCleared = true;
     ui->setupUi(this);
 
     QObject::connect(ui->EqualButton, SIGNAL(clicked()), this, SLOT(a()));
@@ -44,8 +45,11 @@ CalculatorWindow::~CalculatorWindow()
 
 void CalculatorWindow::addNumber(QString num){
     QString value = ui->valueDisplay->text();
-    switch(this->lastchar){
-    case None:
+
+    switch(this->lastState){
+    case Result:
+        ui->formulaDisplay->setText(" ");
+    case Init:
     case Symbol:
     case LeftBracket:
     case RightBracket:
@@ -69,8 +73,10 @@ void CalculatorWindow::addNumber(QString num){
 
 void CalculatorWindow::addDecimalPoint(void){
     QString value = ui->valueDisplay->text();
-    switch(this->lastchar){
-    case None:
+    switch(this->lastState){
+    case Result:
+        ui->formulaDisplay->setText(" ");
+    case Init:
     case Symbol:
     case LeftBracket:
     case RightBracket:
@@ -91,8 +97,12 @@ void CalculatorWindow::addDecimalPoint(void){
 void CalculatorWindow::addLeftBracket(void){
     QString formula = ui->formulaDisplay->text();
     QString value = ui->valueDisplay->text();
-    switch(this->lastchar){
-    case None:
+    switch(this->lastState){
+    case Result:
+        ui->formulaDisplay->setText("(");
+        ui->valueDisplay->setText("0");
+        break;
+    case Init:
     case LeftBracket:
     case RightBracket:
     case Symbol:
@@ -116,7 +126,7 @@ void CalculatorWindow::addRightBracket(void){
         QString formula = ui->formulaDisplay->text();
         QString value = ui->valueDisplay->text();
 
-        switch(this->lastchar){
+        switch(this->lastState){
         case Number:
             ui->formulaDisplay->setText(formula+value+")");
             break;
@@ -137,11 +147,14 @@ void CalculatorWindow::addRightBracket(void){
 
 void CalculatorWindow::addSymbol(QString symbol){
     QString value = ui->valueDisplay->text();
-    QString formula = ui->formulaDisplay->text();
+    QString formula("");
+    if(this->lastState != Result)
+        formula = ui->formulaDisplay->text();
+    else
+        this->saveState(Number);
+
     int len = formula.length();
-    switch(this->lastchar){
-    case LeftBracket:
-        return;
+    switch(this->lastState){
     case RightBracket:
         ui->formulaDisplay->setText(formula+symbol);
         break;
@@ -162,16 +175,22 @@ void CalculatorWindow::addSymbol(QString symbol){
 
 void CalculatorWindow::ClearData(void){
 
-    switch(this->lastchar){
-    case Clear:
+    if (this->isCleared){
         ui->formulaDisplay->setText(" ");
-        this->lastchar = None;
-        break;
-    default:
-        this->lastchar = Clear;
-        break;
+        ui->valueDisplay->setText("0");
+        this->bracketCount = 0;
+        this->saveState(Init);
     }
-    ui->valueDisplay->setText("0");
+    else{
+        ui->valueDisplay->setText("0");
+        ui->ClearButton->setText("AC");
+        this->isCleared = true;
+        if(this->lastState == Result){
+            QString formula = ui->formulaDisplay->text();
+            ui->formulaDisplay->setText(formula.remove("="));
+        }
+        this->saveState(this->pre_lastState);
+    }
 }
 
 void CalculatorWindow::PercentOperate(void){
@@ -198,19 +217,21 @@ void CalculatorWindow::addNumberNine(void){ this->addNumber("9"); }
 void CalculatorWindow::ExecuteOperation(void){
     QString value = ui->valueDisplay->text();
     QString formula = ui->formulaDisplay->text();
-    switch(this->lastchar){
+    switch(this->lastState){
+    case Symbol:
     case Point:
         value.remove(".");
     case Number:
-        ui->formulaDisplay->setText(formula+value);
+        ui->formulaDisplay->setText(formula+value+"=");
         break;
     case RightBracket:
+        ui->formulaDisplay->setText(formula+"=");
         break;
     default:
         return;
     }
 
-    this->saveState(Number);
+    this->saveState(Result);
     ui->valueDisplay->setText("0");
     return;
 }
@@ -273,10 +294,24 @@ void CalculatorWindow::resizeFont(void){
     ui->formulaDisplay->setFont(font);
 }
 
-void CalculatorWindow::saveState(LastChar state){
-    if (state != this->lastchar){
-        this->pre_lastchar = this->lastchar;
-        this->lastchar = state;
+void CalculatorWindow::saveState(CalcState state){
+    if (state == this->lastState)return;
+
+    this->pre_lastState = this->lastState;
+    this->lastState = state;
+    switch(state){
+    case Number:
+    case Point:
+    case LeftBracket:
+    case RightBracket:
+        this->isCleared = false;
+        ui->ClearButton->setText("C");
+        break;
+    case Result:
+        this->isCleared = true;
+        ui->ClearButton->setText("AC");
+    default:
+        break;
     }
 }
 

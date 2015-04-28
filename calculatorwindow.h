@@ -52,9 +52,10 @@ public slots:
 private:
     Ui::CalculatorWindow *ui;
     bool isInitialized;
-    enum LastChar{None, Number, Symbol, LeftBracket, RightBracket, Point, Clear, Result};
-    LastChar pre_lastchar;
-    LastChar lastchar;
+    bool isCleared;
+    enum CalcState{Init, Number, Symbol, LeftBracket, RightBracket, Point, Result};
+    CalcState pre_lastState;
+    CalcState lastState;
     int bracketCount;
     double fontAspectRaito;
     QString *formulaStr;
@@ -62,7 +63,7 @@ private:
 
     void addNumber(QString num);
     void addSymbol(QString symbol);
-    void saveState(LastChar state);
+    void saveState(CalcState state);
 };
 
 #endif // CALCULATORWINDOW_H

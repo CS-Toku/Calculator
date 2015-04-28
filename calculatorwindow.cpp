@@ -10,6 +10,7 @@ CalculatorWindow::CalculatorWindow(QWidget *parent) :
     this->fontAspectRaito = 0;
 
     this->lastchar = None;
+    this->lastchar = None;
     this->bracketCount = 0;
     ui->setupUi(this);
 
@@ -62,8 +63,7 @@ void CalculatorWindow::addNumber(QString num){
         break;
     default: return;
     }
-    this->lastchar = Number;
-    ui->ClearButton->setText("C");
+    this->saveState(Number);
     this->resizeFont();
 }
 
@@ -84,8 +84,7 @@ void CalculatorWindow::addDecimalPoint(void){
     case Point:
     default: return;
     }
-    this->lastchar = Point;
-    ui->ClearButton->setText("C");
+    this->saveState(Point);
     this->resizeFont();
 }
 
@@ -108,8 +107,7 @@ void CalculatorWindow::addLeftBracket(void){
     }
     ui->valueDisplay->setText("0");
     this->bracketCount++;
-    ui->ClearButton->setText("C");
-    this->lastchar = LeftBracket;
+    this->saveState(LeftBracket);
     this->resizeFont();
 }
 
@@ -130,9 +128,8 @@ void CalculatorWindow::addRightBracket(void){
             break;
         default: return;
         }
-        this->lastchar = RightBracket;
+        this->saveState(RightBracket);
         ui->valueDisplay->setText("0");
-        ui->ClearButton->setText("C");
         this->bracketCount--;
         this->resizeFont();
     }
@@ -159,16 +156,14 @@ void CalculatorWindow::addSymbol(QString symbol){
         break;
     default: return;
     }
-    this->lastchar = Symbol;
-    ui->ClearButton->setText("C");
+    this->saveState(Symbol);
     this->resizeFont();
 }
 
 void CalculatorWindow::ClearData(void){
+
     switch(this->lastchar){
-    case None: return;
     case Clear:
-    case Result:
         ui->formulaDisplay->setText(" ");
         this->lastchar = None;
         break;
@@ -177,8 +172,6 @@ void CalculatorWindow::ClearData(void){
         break;
     }
     ui->valueDisplay->setText("0");
-    ui->ClearButton->setText("AC");
-    this->resizeFont();
 }
 
 void CalculatorWindow::PercentOperate(void){
@@ -217,7 +210,7 @@ void CalculatorWindow::ExecuteOperation(void){
         return;
     }
 
-    this->lastchar = Number;
+    this->saveState(Number);
     ui->valueDisplay->setText("0");
     return;
 }
@@ -278,6 +271,13 @@ void CalculatorWindow::resizeFont(void){
     font = ui->formulaDisplay->font();
     font.setPixelSize(px);
     ui->formulaDisplay->setFont(font);
+}
+
+void CalculatorWindow::saveState(LastChar state){
+    if (state != this->lastchar){
+        this->pre_lastchar = this->lastchar;
+        this->lastchar = state;
+    }
 }
 
 void CalculatorWindow::a(){

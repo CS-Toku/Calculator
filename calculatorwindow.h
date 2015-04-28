@@ -53,6 +53,7 @@ private:
     Ui::CalculatorWindow *ui;
     bool isInitialized;
     enum LastChar{None, Number, Symbol, LeftBracket, RightBracket, Point, Clear, Result};
+    LastChar pre_lastchar;
     LastChar lastchar;
     int bracketCount;
     double fontAspectRaito;
@@ -61,6 +62,7 @@ private:
 
     void addNumber(QString num);
     void addSymbol(QString symbol);
+    void saveState(LastChar state);
 };
 
 #endif // CALCULATORWINDOW_H

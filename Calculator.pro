@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        calculatorwindow.cpp
+        calculatorwindow.cpp \
+    stringarithmeticoperation.cpp
 
-HEADERS  += calculatorwindow.h
+HEADERS  += calculatorwindow.h \
+    stringarithmeticoperation.h
 
 FORMS    += calculatorwindow.ui
 

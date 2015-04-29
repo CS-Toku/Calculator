@@ -24,3 +24,8 @@ FORMS    += calculatorwindow.ui
 RESOURCES +=
 
 DISTFILES +=
+
+macx: LIBS += -L/usr/local/Cellar/gmp/6.0.0a/lib/ -lgmpxx -lgmp
+macx: INCLUDEPATH += /usr/local/Cellar/gmp/6.0.0a/include
+macx: DEPENDPATH += /usr/local/Cellar/gmp/6.0.0a/include
+macx: PRE_TARGETDEPS += /usr/local/Cellar/gmp/6.0.0a/lib/libgmpxx.a

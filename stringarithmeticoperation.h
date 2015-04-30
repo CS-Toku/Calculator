@@ -2,12 +2,11 @@
 #define STRINGARITHMETICOPERATION_H
 
 #include <gmpxx.h>
+#include <QString>
 
-class StringArithmeticOperation
-{
-public:
-    StringArithmeticOperation();
-    ~StringArithmeticOperation();
-};
+QString StringAuthmeticOperation(QString formula);
+QString parseMethod(QString formula);
+QString calcrateMethod(QString formula);
+
 
 #endif // STRINGARITHMETICOPERATION_H

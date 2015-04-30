@@ -1,12 +1,16 @@
 #include "stringarithmeticoperation.h"
 
-StringArithmeticOperation::StringArithmeticOperation()
-{
-    mpf_class a(0), b(1);
+QString StringAuthmeticOperation(QString formula){
+
 }
 
-StringArithmeticOperation::~StringArithmeticOperation()
-{
+
+QString parseMethod(QString f){
+
+}
+
+
+QString calcrateMethod(QString f){
 
 }
 

@@ -5,12 +5,12 @@ QString StringAuthmeticOperation(QString formula){
 }
 
 
-QString parseMethod(QString f){
+QString parseMethod(QString formula){
 
 }
 
 
-QString calcrateMethod(QString f){
+QString calcrateMethod(QString formula){
 
 }
 

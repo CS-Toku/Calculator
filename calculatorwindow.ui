@@ -362,7 +362,7 @@ QPushButton:pressed {
 </string>
         </property>
         <property name="text">
-         <string>+</string>
+         <string>＋</string>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -609,7 +609,7 @@ QPushButton:pressed {
        </widget>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="PercentButton">
+       <widget class="QPushButton" name="PMButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -640,7 +640,7 @@ QPushButton:pressed {
 </string>
         </property>
         <property name="text">
-         <string>%</string>
+         <string>＋/−</string>
         </property>
         <property name="flat">
          <bool>false</bool>

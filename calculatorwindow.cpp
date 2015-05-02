@@ -30,7 +30,7 @@ CalculatorWindow::CalculatorWindow(QWidget *parent) :
     QObject::connect(ui->RBracketButton, SIGNAL(clicked()), this, SLOT(addRightBracket()));
     QObject::connect(ui->LBracketButton, SIGNAL(clicked()), this, SLOT(addLeftBracket()));
     QObject::connect(ui->ClearButton, SIGNAL(clicked()), this, SLOT(ClearData()));
-    QObject::connect(ui->PercentButton, SIGNAL(clicked()), this, SLOT(PercentOperate()));
+    QObject::connect(ui->PMButton, SIGNAL(clicked()), this, SLOT(PMChange()));
     QObject::connect(ui->AddButton, SIGNAL(clicked()), this, SLOT(addAddSymbol()));
     QObject::connect(ui->SubtractButton, SIGNAL(clicked()), this, SLOT(addSubtractSymbol()));
     QObject::connect(ui->MultiplyButton, SIGNAL(clicked()), this, SLOT(addMultiplySymbol()));
@@ -193,12 +193,21 @@ void CalculatorWindow::ClearData(void){
     }
 }
 
-void CalculatorWindow::PercentOperate(void){
+void CalculatorWindow::PMChange(void){
     QString value = ui->valueDisplay->text();
+    QRegExp r("^0\\.?0*$");
+    if(!r.exactMatch(value) && (this->lastState == Number || this->lastState == Point)){
+        if(value[0].toLatin1() == '-')
+            value.remove("-");
+        else
+            value.insert(0, "-");
+
+        ui->valueDisplay->setText(value);
+    }
     return;
 }
 
-void CalculatorWindow::addAddSymbol(void){ this->addSymbol("+"); }
+void CalculatorWindow::addAddSymbol(void){ this->addSymbol("＋"); }
 void CalculatorWindow::addSubtractSymbol(void){ this->addSymbol("−"); }
 void CalculatorWindow::addMultiplySymbol(void){ this->addSymbol("×"); }
 void CalculatorWindow::addDivideSymbol(void){ this->addSymbol("÷"); }
@@ -231,8 +240,11 @@ void CalculatorWindow::ExecuteOperation(void){
         return;
     }
 
+    formula = ui->formulaDisplay->text();
+    QString result = StringArithmeticOperation(formula);
+    ui->valueDisplay->setText(result);
+
     this->saveState(Result);
-    ui->valueDisplay->setText("0");
     return;
 }
 

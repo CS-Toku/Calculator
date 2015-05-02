@@ -5,6 +5,7 @@
 #include <QResizeEvent>
 #include <QSize>
 #include <QGraphicsTextItem>
+#include "stringarithmeticoperation.h"
 
 namespace Ui {
 class CalculatorWindow;
@@ -42,7 +43,7 @@ public slots:
     void addRightBracket(void);
     void addLeftBracket(void);
     void ClearData(void);
-    void PercentOperate(void);
+    void PMChange(void);
     void addAddSymbol(void);
     void addSubtractSymbol(void);
     void addMultiplySymbol(void);

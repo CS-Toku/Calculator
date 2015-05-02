@@ -5,6 +5,7 @@
 #include <QResizeEvent>
 #include <QSize>
 #include <QGraphicsTextItem>
+#include <QRegExp>
 #include "stringarithmeticoperation.h"
 
 namespace Ui {
@@ -28,7 +29,6 @@ public:
     void showEvent(QShowEvent *event);
 
 public slots:
-    void a(void);
     void addNumberZero(void);
     void addNumberOne(void);
     void addNumberTwo(void);

@@ -1,6 +1,7 @@
 #ifndef STRINGARITHMETICOPERATION_H
 #define STRINGARITHMETICOPERATION_H
 
+#include <sstream>
 #include <iostream>
 #include <gmpxx.h>
 #include <QString>
@@ -10,7 +11,7 @@
 
 QString StringArithmeticOperation(QString formula);
 QString parseMethod(QString formula);
-void calcrateMethod(QString formula);
+QString calcrateMethod(QString formula);
 int symbolPriority(char ch);
 
 

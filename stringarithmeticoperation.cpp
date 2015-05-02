@@ -1,8 +1,12 @@
 #include "stringarithmeticoperation.h"
 
+const int N = 10;
+
 QString StringArithmeticOperation(QString formula){
     int index=0;
-    QRegExp r("[0-9]\\(|\\)[-0-9]+");
+    int prec = (1000000)*3.32;//100万桁
+    mpf_set_default_prec(prec);
+    QRegExp r("[0-9]\\(|\\)[-0-9]+|\\)\\(");
     //正規化(×を省略しているところに追加)
     while((index=r.indexIn(formula)) != -1)
         formula.insert(index+1, "*");
@@ -12,10 +16,11 @@ QString StringArithmeticOperation(QString formula){
     formula.replace("×", "*");
     formula.replace("÷", "/");
 
-    QString RPN = parseMethod(formula);
-    calcrateMethod(RPN);
 
-    return RPN;
+    QString RPN = parseMethod(formula);
+    QString result = calcrateMethod(RPN);
+
+    return result;
 }
 
 
@@ -65,7 +70,7 @@ QString parseMethod(QString formula){
         ch = formula[i].toLatin1();
         if(rpnBlock){
             if(ch == ']'){
-                //RPN += ' ';
+                RPN += ' ';
                 rpnBlock = false;
             }
             else{
@@ -75,22 +80,6 @@ QString parseMethod(QString formula){
         }
 
         switch(ch){
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case '.':
-        case '+':
-        case '-':
-        case 'e':
-            RPN += ch;
-            break;
         case 'p':
         case 'm':
         case '*':
@@ -118,6 +107,21 @@ QString parseMethod(QString formula){
         case '[':
             rpnBlock = true;
             break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '.':
+        case '+':
+        case '-':
+        case 'e':
+            RPN += ch;
         default:
             continue;
         }
@@ -132,11 +136,75 @@ QString parseMethod(QString formula){
 }
 
 
-void calcrateMethod(QString formula){
-    QStringList list = formula.split(" ");
+QString calcrateMethod(QString formula){
+    QRegExp r(" +");
+    QStringList list = formula.split(r);
+    QStack<mpf_class> numBuffer;
+    QString buf;
+    mpf_class op1, op2, tmp;
+    std::ostringstream ostream;
+    mp_exp_t e;
+    int i=0;
+
     for(int i=0; i<list.length(); i++){
-        std::cout << list[i].toStdString() << std::endl;
+        buf = list[i];
+        switch (buf[0].toLatin1()) {
+        case 'p':
+            op2 = numBuffer.pop();
+            op1 = numBuffer.pop();
+            numBuffer.push(op1 + op2);
+            break;
+        case 'm':
+            op2 = numBuffer.pop();
+            op1 = numBuffer.pop();
+            numBuffer.push(op1 - op2);
+            break;
+        case '*':
+            op2 = numBuffer.pop();
+            op1 = numBuffer.pop();
+            numBuffer.push(op1 * op2);
+            break;
+        case '/':
+            op2 = numBuffer.pop();
+            op1 = numBuffer.pop();
+            numBuffer.push(op1 / op2);
+            break;
+        default:
+            tmp.set_str(buf.toStdString(), 10);
+            numBuffer.push(tmp);
+            break;
+        }
     }
+
+    tmp = numBuffer.pop();
+    ostream << tmp;
+    std::string f = tmp.get_str(e, 10, N);
+    QString result;
+    buf = "";
+    if(0 < e && e <= N){
+        result += f.c_str();
+        for(i=0; i<e-f.length(); i++)
+            result += "0";
+    }
+    else if(0 < f.length()-e && f.length()-e <= N){
+        result += "0.";
+        e=abs(e);
+        for(i=0; i<e; i++)
+            buf += "0";
+        result += buf+f.c_str();
+    }
+    else{
+        buf = "%1%2%3";
+        e--;
+        if(0 < e)
+            result = buf.arg(f.c_str()).arg("e+").arg(e);
+        else
+            result = buf.arg(f.c_str()).arg("e-").arg(-e);
+        if(f.length() > 1)
+            result.insert(1, ".");
+    }
+    return result;
+
 }
 
 int symbolPriority(char ch){

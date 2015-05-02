@@ -15,7 +15,6 @@ CalculatorWindow::CalculatorWindow(QWidget *parent) :
     this->isCleared = true;
     ui->setupUi(this);
 
-    QObject::connect(ui->EqualButton, SIGNAL(clicked()), this, SLOT(a()));
     QObject::connect(ui->NumButton_0, SIGNAL(clicked()), this, SLOT(addNumberZero()));
     QObject::connect(ui->NumButton_1, SIGNAL(clicked()), this, SLOT(addNumberOne()));
     QObject::connect(ui->NumButton_2, SIGNAL(clicked()), this, SLOT(addNumberTwo()));
@@ -100,7 +99,6 @@ void CalculatorWindow::addLeftBracket(void){
     switch(this->lastState){
     case Result:
         ui->formulaDisplay->setText("(");
-        ui->valueDisplay->setText("0");
         break;
     case Init:
     case LeftBracket:
@@ -185,11 +183,7 @@ void CalculatorWindow::ClearData(void){
         ui->valueDisplay->setText("0");
         ui->ClearButton->setText("AC");
         this->isCleared = true;
-        if(this->lastState == Result){
-            QString formula = ui->formulaDisplay->text();
-            ui->formulaDisplay->setText(formula.remove("="));
-        }
-        this->saveState(this->pre_lastState);
+        this->lastState = this->pre_lastState;
     }
 }
 
@@ -229,7 +223,8 @@ void CalculatorWindow::ExecuteOperation(void){
     switch(this->lastState){
     case Symbol:
     case Point:
-        value.remove(".");
+        if(value.endsWith("."))
+            value.remove(".");
     case Number:
         ui->formulaDisplay->setText(formula+value+"=");
         break;
@@ -243,7 +238,7 @@ void CalculatorWindow::ExecuteOperation(void){
     formula = ui->formulaDisplay->text();
     QString result = StringArithmeticOperation(formula);
     ui->valueDisplay->setText(result);
-
+    this->resizeFont();
     this->saveState(Result);
     return;
 }
@@ -307,13 +302,14 @@ void CalculatorWindow::resizeFont(void){
 }
 
 void CalculatorWindow::saveState(CalcState state){
-    if (state == this->lastState)return;
+    if (state == this->lastState && state != Number)return;
 
     this->pre_lastState = this->lastState;
     this->lastState = state;
     switch(state){
     case Number:
     case Point:
+    case Symbol:
     case LeftBracket:
     case RightBracket:
         this->isCleared = false;
@@ -325,8 +321,4 @@ void CalculatorWindow::saveState(CalcState state){
     default:
         break;
     }
-}
-
-void CalculatorWindow::a(){
-
 }

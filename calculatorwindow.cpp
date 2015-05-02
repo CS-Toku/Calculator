@@ -183,7 +183,16 @@ void CalculatorWindow::ClearData(void){
         ui->valueDisplay->setText("0");
         ui->ClearButton->setText("AC");
         this->isCleared = true;
-        this->lastState = this->pre_lastState;
+        switch(this->lastState){
+        case Symbol:
+        case LeftBracket:
+        case RightBracket:
+            break;
+        default:
+            this->lastState = this->pre_lastState;
+            break;
+        }
+
     }
 }
 
@@ -302,10 +311,6 @@ void CalculatorWindow::resizeFont(void){
 }
 
 void CalculatorWindow::saveState(CalcState state){
-    if (state == this->lastState && state != Number)return;
-
-    this->pre_lastState = this->lastState;
-    this->lastState = state;
     switch(state){
     case Number:
     case Point:
@@ -321,4 +326,8 @@ void CalculatorWindow::saveState(CalcState state){
     default:
         break;
     }
+    if (state == this->lastState)return;
+
+    this->pre_lastState = this->lastState;
+    this->lastState = state;
 }

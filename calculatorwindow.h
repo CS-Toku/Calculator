@@ -6,6 +6,7 @@
 #include <QSize>
 #include <QGraphicsTextItem>
 #include <QRegExp>
+#include <QMessageBox>
 #include "stringarithmeticoperation.h"
 
 namespace Ui {
@@ -65,6 +66,7 @@ private:
     void addNumber(QString num);
     void addSymbol(QString symbol);
     void saveState(CalcState state);
+    void exceptionProcess(CalcException e);
 };
 
 #endif // CALCULATORWINDOW_H

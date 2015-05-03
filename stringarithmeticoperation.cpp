@@ -1,10 +1,12 @@
 #include "stringarithmeticoperation.h"
 
 const int N = 15;
+const mpf_class MAX_VALUE("1e+100000000");
+const mpf_class MIN_VALUE("-1e+100000000");
 
 QString StringArithmeticOperation(QString formula){
     int index=0;
-    int prec = (1000000)*3.32;//100万桁
+    int prec = (1000000)*3.32;//100万桁?
     mpf_set_default_prec(prec);
     QRegExp r("[0-9]\\(|\\)[-0-9]+|\\)\\(");
     //正規化(×を省略しているところに追加)
@@ -145,8 +147,6 @@ QString calcrateMethod(QString formula){
     mp_exp_t e;
     int i=0;
 
-    throw "Yahooooo";
-
     for(int i=0; i<list.length(); i++){
         buf = list[i];
         if(buf.isEmpty())continue;
@@ -154,39 +154,46 @@ QString calcrateMethod(QString formula){
         case 'p':
             op2 = numBuffer.pop();
             op1 = numBuffer.pop();
-            numBuffer.push(op1 + op2);
+            tmp = op1 + op2;
             break;
         case 'm':
             op2 = numBuffer.pop();
             op1 = numBuffer.pop();
-            numBuffer.push(op1 - op2);
+            tmp = op1 - op2;
             break;
         case '*':
             op2 = numBuffer.pop();
             op1 = numBuffer.pop();
-            numBuffer.push(op1 * op2);
+            tmp = op1 * op2;
             break;
         case '/':
             op2 = numBuffer.pop();
             op1 = numBuffer.pop();
-            numBuffer.push(op1 / op2);
+            if(cmp(op2, 0) == 0)
+                throw ZeroDiv;
+            tmp = op1 / op2;
             break;
         default:
             tmp.set_str(buf.toStdString(), 10);
-            numBuffer.push(tmp);
             break;
         }
+        if(cmp(tmp, MAX_VALUE) > 0 || cmp(tmp, MIN_VALUE) < 0)
+            throw OverLimitValue;
+
+        numBuffer.push(tmp);
     }
 
     tmp = numBuffer.pop();
     ostream << tmp;
     std::string f = tmp.get_str(e, 10, N);
     QString result;
+    int f_length = f[0] != '-' ? f.length(): f.length()-1;
     buf = "";
+
     if(0 < e && e <= N){
         result += f.c_str();
-        if((ulong)e >= f.length()){
-            for(i=0; i<(int)(e-f.length()); i++)
+        if(e >= f_length){
+            for(i=0; i<e-f_length; i++)
                 result += "0";
         }
         else{
@@ -198,7 +205,7 @@ QString calcrateMethod(QString formula){
             }
         }
     }
-    else if(0 < f.length()-e && f.length()-e <= N+1){ //符号分の+1
+    else if(0 < f_length-e && f_length-e <= N){
         e=std::abs(e);
         for(i=0; i<e; i++)
             buf += "0";
@@ -218,7 +225,7 @@ QString calcrateMethod(QString formula){
             result = buf.arg(f.c_str()).arg("e+").arg(e);
         else
             result = buf.arg(f.c_str()).arg("e-").arg(-e);
-        if(f.length() > 1){
+        if(f_length > 1){
             if(f[0]!='-'){
                 result.insert(1, "."); //ここ！！
             }

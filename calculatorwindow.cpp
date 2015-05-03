@@ -252,8 +252,8 @@ void CalculatorWindow::ExecuteOperation(void){
         result = StringArithmeticOperation(formula);
         ui->valueDisplay->setText(result);
         this->saveState(Result);
-    }catch(const char *e){
-        ui->valueDisplay->setText(e);
+    }catch(CalcException e){
+        this->exceptionProcess(e);
         this->saveState(Result);
         this->saveState(Init);
     }
@@ -262,6 +262,32 @@ void CalculatorWindow::ExecuteOperation(void){
     return;
 }
 
+void CalculatorWindow::exceptionProcess(CalcException e){
+    QMessageBox msgBox(this);
+    QString body, value;
+    switch(e){
+    case ZeroDiv:
+        value = "Division by zero";
+        body = "ゼロ除算が起きました。";
+        break;
+    case OverLimitValue:
+        value = "OverLimitValue";
+        body = "値が最大値・最小値の範囲外になりました。";
+        break;
+    default:
+        value = "Internal Error";
+        body = "内部エラーが起きました。";
+        break;
+    }
+    ui->valueDisplay->setText(value);
+    ui->formulaDisplay->setText(" ");
+    this->resizeFont();
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setWindowTitle("エラー");
+    msgBox.setText(body);
+    msgBox.exec();
+}
 
 bool CalculatorWindow::event(QEvent *event){
 

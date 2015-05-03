@@ -9,6 +9,9 @@
 #include <QStack>
 #include <QStringList>
 
+enum CalcException{ ZeroDiv, OverLimitValue};
+
+
 QString StringArithmeticOperation(QString formula);
 QString parseMethod(QString formula);
 QString calcrateMethod(QString formula);

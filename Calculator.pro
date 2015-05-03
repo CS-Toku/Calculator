@@ -23,9 +23,16 @@ FORMS    += calculatorwindow.ui
 
 RESOURCES +=
 
-DISTFILES +=
+DISTFILES += \
+    Calc.icns \
+    Calc.ico \
+    Calc.rc
+
+win32: RC_FILE = ComicsViewer.rc
+
 
 macx: LIBS += -L/usr/local/Cellar/gmp/6.0.0a/lib/ -lgmpxx -lgmp
 macx: INCLUDEPATH += /usr/local/Cellar/gmp/6.0.0a/include
 macx: DEPENDPATH += /usr/local/Cellar/gmp/6.0.0a/include
 macx: PRE_TARGETDEPS += /usr/local/Cellar/gmp/6.0.0a/lib/libgmpxx.a
+macx: ICON = Calc.icns

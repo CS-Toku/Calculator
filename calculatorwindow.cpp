@@ -194,6 +194,7 @@ void CalculatorWindow::ClearData(void){
         }
 
     }
+    this->resizeFont();
 }
 
 void CalculatorWindow::PMChange(void){

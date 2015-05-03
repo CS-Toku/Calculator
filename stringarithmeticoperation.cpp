@@ -1,6 +1,6 @@
 #include "stringarithmeticoperation.h"
 
-const int N = 10;
+const int N = 15;
 
 QString StringArithmeticOperation(QString formula){
     int index=0;
@@ -148,6 +148,7 @@ QString calcrateMethod(QString formula){
 
     for(int i=0; i<list.length(); i++){
         buf = list[i];
+        if(buf.isEmpty())continue;
         switch (buf[0].toLatin1()) {
         case 'p':
             op2 = numBuffer.pop();
@@ -183,15 +184,31 @@ QString calcrateMethod(QString formula){
     buf = "";
     if(0 < e && e <= N){
         result += f.c_str();
-        for(i=0; i<e-f.length(); i++)
-            result += "0";
+        if((ulong)e >= f.length()){
+            for(i=0; i<(int)(e-f.length()); i++)
+                result += "0";
+        }
+        else{
+            if(f[0]!='-'){
+                result.insert(e, "."); //ここ！！
+            }
+            else{
+                result.insert(e+1, "."); //ここ！！
+            }
+        }
     }
-    else if(0 < f.length()-e && f.length()-e <= N){
-        result += "0.";
-        e=abs(e);
+    else if(0 < f.length()-e && f.length()-e <= N+1){ //符号分の+1
+        e=std::abs(e);
         for(i=0; i<e; i++)
             buf += "0";
-        result += buf+f.c_str();
+        if(f[0]!='-'){
+            result += "0."; //ここ！！
+            result += buf+f.c_str();
+        }
+        else{
+            result += "-0."; //ここ！！
+            result += buf+f.substr(1).c_str();
+        }
     }
     else{
         buf = "%1%2%3";
@@ -200,8 +217,14 @@ QString calcrateMethod(QString formula){
             result = buf.arg(f.c_str()).arg("e+").arg(e);
         else
             result = buf.arg(f.c_str()).arg("e-").arg(-e);
-        if(f.length() > 1)
-            result.insert(1, ".");
+        if(f.length() > 1){
+            if(f[0]!='-'){
+                result.insert(1, "."); //ここ！！
+            }
+            else{
+                result.insert(2, "."); //ここ！！
+            }
+        }
     }
     return result;
 
@@ -214,5 +237,6 @@ int symbolPriority(char ch){
     case '*': return 2;
     case '/': return 2;
     }
+    return 0;
 }
 

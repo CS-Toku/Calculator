@@ -230,6 +230,7 @@ void CalculatorWindow::addNumberNine(void){ this->addNumber("9"); }
 void CalculatorWindow::ExecuteOperation(void){
     QString value = ui->valueDisplay->text();
     QString formula = ui->formulaDisplay->text();
+    QString result;
     switch(this->lastState){
     case Symbol:
     case Point:
@@ -246,10 +247,18 @@ void CalculatorWindow::ExecuteOperation(void){
     }
 
     formula = ui->formulaDisplay->text();
-    QString result = StringArithmeticOperation(formula);
-    ui->valueDisplay->setText(result);
+
+    try{
+        result = StringArithmeticOperation(formula);
+        ui->valueDisplay->setText(result);
+        this->saveState(Result);
+    }catch(const char *e){
+        ui->valueDisplay->setText(e);
+        this->saveState(Result);
+        this->saveState(Init);
+    }
+
     this->resizeFont();
-    this->saveState(Result);
     return;
 }
 

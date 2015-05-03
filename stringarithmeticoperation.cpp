@@ -59,7 +59,6 @@ QString parseMethod(QString formula){
     }
 
     //逆ポーランドに置き換え
-    //QStack<QString> NumStack;
     QStack<char> SymbolStack;
     QString RPN;
     bool rpnBlock = false;
@@ -145,6 +144,8 @@ QString calcrateMethod(QString formula){
     std::ostringstream ostream;
     mp_exp_t e;
     int i=0;
+
+    throw "Yahooooo";
 
     for(int i=0; i<list.length(); i++){
         buf = list[i];

@@ -1,3 +1,3 @@
 # Calculator
-UIEvolution subject. Calculator.
+Calculator.
 
